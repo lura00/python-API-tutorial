@@ -201,7 +201,7 @@ Example of a created post message (status_code):
     if index == None:           
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} does not exist")
-                            
+
 - Use a if-statement if inde(ID) does not exist we raise a different http-exception and passes on a different status message
     
     my_posts.pop(index)
@@ -213,4 +213,63 @@ Example of a created post message (status_code):
     for i, p in enumerate(my_posts):
         if p['id'] == id:
             return i
+
+# Update a post
+- Create a decorator with "PUT" http-method, pass in the url in the braces.
+- Use the already set schema for title, content etc.
+- These two code lines can look like this:
+
+    @app.put("/posts/{id}")
+    def update_post(id: int, post: Post):
+
+- We need something to tell us if the post we pass in as parameter doesn't exist, for example
+    use the same code block as per in the "delete" function, this piece: 
+
+        index = find_index_post(id)    - Calls the find_index function and passes in the required ID
+
+        if index == None:           
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"post with id {id} does not exist")
+                
+- Then we need to create something that will exhange the current post info in the array of posts
+- This can look like this:
+
+    post_dict = post.dict()  # convert post_dict to a dictionary
+    post_dict['id'] = id
+    my_posts[index] = post_dict # The "my_post" is our current hard coded post and we set it to "post_dict".
+    return {"data": post_dict}
+
+- The full code block for updating a post:
+
+    @app.put("/posts/{id}")
+    def update_post(id: int, post: Post):
+    index = find_index_post(id)
+
+    if index == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"post with id {id} does not exist")
+
+    post_dict = post.dict()
+    post_dict['id'] = id
+    my_posts[index] = post_dict
+    return {"data": post_dict}
+
+- Once this code is done test it in Postman
+- Create a new request, with HTTP-method "PUT".
+- Add the same URL as in "Get-post" and pass in the id you want to change.
+- Click in "body" --> "raw" --> "lang = JSON".
+- Add the changes to be made, for example:
+    {
+        "title": "updated title",
+        "content": "This is the new content"
+    }
+
+# FastAPIs built in documentation
+- To see the documantation fastapi does for us, just paste the original url in your terminal.
+- Then use /docs. Like this:
+    127.0.0.1:8000/docs
+- Once you are in, you can actually try your out your functions.
+- Enter for example "get posts" and in the top right corner there is a button "try it out".
+- We can also use "redoc". Sometimes docs or redoc can be used instead of postman to try our methods out.
+    127.0.0.1:8000/redoc
 
