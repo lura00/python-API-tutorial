@@ -57,7 +57,51 @@
 - Now you can enter SQL-commands and filter your table for example:
     SELECT * FROM products;
 
-    SELECT and FROM are sql commands and * and products is what I, the user want to get.
+    SELECT and FROM are sql keywords and * and products is what I, the user want to get.
 - So the above command will print everything (*) within my table "products".
 - If I have a column named "name" I can change the * to "name" and only the name column will print.
 - We can pass in as many parameters as we want as long as the exist in the table.
+
+# QUERY - Usefull SQL-commands
+- Change name on a column in your table:
+    SELECT id AS products_id FROM products;
+- And you can change as many columns as you want, just put "," after the last changed name.
+
+- Filter your table with keyword "WHERE" and filter whatever you ad after, like this example I use id:
+    SELECT * FROM products WHERE id = 10;
+- This will show me the product with id-number 10.
+- If you working with varchars (Strings) you want to wrap your search word in quotes ''
+- You can filter insted of "=" use less then or greater then, to get a large aim.
+    SELECT * FROM products WHERE price > 50;
+    > | < | <= | != 
+- SELECT * FROM products WHERE inventory > 0 AND price > 20; AND keyword
+- SELECT * FROM products WHERE id = 1 OR id = 2 OR id = 3; OR keyword
+- SELECT * FROM products WHERE id IN (1,2,3); IN keyword, similar to or but you ad a interval
+- SELECT * FROM products WHERE name LIKE 'TV%'; LIKE keyword, if you want all fields containing the word
+    TV in this case, use LIKE 'TV%' remember the % character. if you put it infront of % it will show the starting  letters if after % it will filter all words that ends on the character, like this:
+    SELECT * FROM products WHERE name LIKE '%e';
+- ad keyword NOT if you not want words that start with "TV%"
+- How to ORDER BY:
+    SELECT * FROM products ORDER BY price ASC; ORDER BY - keywords and ASC -keyword (ascending)
+    - This will show us the price from lowest to most expensive
+    - If you want to filter from most expensive to lowest change ASC to keyword DESC (descending)
+
+- Example:
+- ASC is default. so this line will first filter inventory in most to less. Then if we have
+    inventory that all is the same it will start sorting price ASC.
+- SELECT * FROM products ORDER BY inventory DESC, price;
+
+example:
+- Use more keywords, WHERE and ORDER BY:
+    SELECT * FROM products WHERE price > 20 ORDER BY created_at DESC;
+
+- LIMIT keyword, will limit your result by as many as you want:
+    SELECT * FROM products WHERE price > 20 LIMIT 2;
+
+- OFFSET keyword will skip as many lines you want:
+    SELECT * FROM products ORDER BY id LIMIT 5 OFFSET 2; 
+    Will skip the first two lines.
+
+# Adding a line to table useing the SQL command
+- The VALUES must matgch the order you have before keyword VALUES.
+    INSERT INTO products (name, price, inventory ) VALUES ('Tortilla', 4, 1000);
