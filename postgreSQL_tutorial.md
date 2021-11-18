@@ -105,3 +105,15 @@ example:
 # Adding a line to table useing the SQL command
 - The VALUES must matgch the order you have before keyword VALUES.
     INSERT INTO products (name, price, inventory ) VALUES ('Tortilla', 4, 1000);
+
+# Print the item you added to a table without showing the whole table
+ - INSERT INTO products (name, price, inventory ) VALUES ('car', 500, 10) returning*;
+- Keyword "returning *"
+
+# Deleting an item
+- DELETE FROM products WHERE id = 10 RETURNING *; keyword DELETE and the specify
+
+# Updating exisisting row
+- UPDATE products SET name = 'flower tortilla', price = 40 WHERE id = 21; keywowrd UPDATE and SET
+- Updating multiple rows:
+    UPDATE products SET is_sale = true WHERE id > 15 RETURNING *; 
