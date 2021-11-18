@@ -1,10 +1,13 @@
 import enum
+import psycopg2
+import time
 from typing import Optional
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
+from psycopg2.extras import RealDictCursor
 
 
 app = FastAPI()
@@ -14,8 +17,24 @@ class Post(BaseModel):
     title: str
     content: str
     published: bool = True
-    ratings: Optional[int] = None
 
+    # ratings: Optional[int] = None
+
+
+# connect to database created in postgres
+while True:
+
+    try:
+        conn = psycopg2.connect(host='localhost', database="fastapi", user='postgres',
+                                password='solstad', cursor_factory=RealDictCursor)
+        cursor = conn.cursor()
+        print("Database connection was successfull!")
+        break
+    except Exception as error:
+        print("Connecting to database failed")
+        print("Error: ", error)
+        # import time, this will make the while loop wait 2 secs before starting over.
+        time.sleep(2)
 
 my_posts = [{"title": "title of post 1", "content": "content of post 1", "id": 1}, {"title":
                                                                                     "favorite foods", "content": "I like pizza", "id": 2}]
@@ -38,18 +57,24 @@ def root():
 
     return {"message": "Welcome to my API!!!!"}
 
+# Show your posts from postgres database
+
 
 @app.get("/posts")
 def get_posts():
-    return{"data": my_posts}
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
+    return{"data": posts}
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
-    post_dict = post.dict()
-    post_dict['id'] = randrange(0, 1000000)
-    my_posts.append(post_dict)
-    return {"data": post_dict}
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s)""",
+                   (post.title. post.content, post.published))
+    # post_dict = post.dict()
+    # post_dict['id'] = randrange(0, 1000000)
+    # my_posts.append(post_dict)
+    return {"data": "created post"}
 # title string, content string, category, Boolean published or saved as draft
 
 
