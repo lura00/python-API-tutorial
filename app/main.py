@@ -1,6 +1,7 @@
 import enum
 import psycopg2
 import time
+import sys
 from typing import Optional
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
@@ -11,6 +12,8 @@ from psycopg2.extras import RealDictCursor
 
 
 app = FastAPI()
+
+# setting a Schema for the posts
 
 
 class Post(BaseModel):
@@ -33,11 +36,14 @@ while True:
     except Exception as error:
         print("Connecting to database failed")
         print("Error: ", error)
+        # sys.exit(10)
         # import time, this will make the while loop wait 2 secs before starting over.
         time.sleep(2)
 
 my_posts = [{"title": "title of post 1", "content": "content of post 1", "id": 1}, {"title":
                                                                                     "favorite foods", "content": "I like pizza", "id": 2}]
+
+# Finding correct id for all the functions
 
 
 def find_post(id):
@@ -51,30 +57,36 @@ def find_index_post(id):
         if p['id'] == id:
             return i
 
+# Initializing fastAPI
 
-@app.get("/")
+
+@ app.get("/")
 def root():
 
     return {"message": "Welcome to my API!!!!"}
 
 # Show your posts from postgres database
 
+# Get all posts from my postgres DB table called "posts"
 
-@app.get("/posts")
+
+@ app.get("/posts")
 def get_posts():
     cursor.execute("""SELECT * FROM posts""")
     posts = cursor.fetchall()
     return{"data": posts}
 
+# Create a new post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
+
+@ app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
-    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s)""",
-                   (post.title. post.content, post.published))
-    # post_dict = post.dict()
-    # post_dict['id'] = randrange(0, 1000000)
-    # my_posts.append(post_dict)
-    return {"data": "created post"}
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
+                   (post.title, post.content, post.published))
+
+    new_post = cursor.fetchone()
+    return {"data": new_post}
+
 # title string, content string, category, Boolean published or saved as draft
 
 
@@ -107,18 +119,21 @@ def delete_post(id: int):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+# Update post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
+
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
-    index = find_index_post(id)
 
-    if index == None:
+    cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING * """,
+                   (post.title, post.content, post.published, str(id)))
+
+    updated_post = cursor.fetchone()
+    conn.commit()
+
+    if updated_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} does not exist")
-
-    post_dict = post.dict()  # convert post_dict to a dictionary
-    post_dict['id'] = id
-    my_posts[index] = post_dict
-    return {"data": post_dict}
+    return {"data": updated_post}
 
 
 # Original draft
@@ -150,3 +165,23 @@ def update_post(id: int, post: Post):
 #     print(post.dict())
 #     return {"data": post}
 # # title string, content string, category, Boolean published or saved as draft
+
+
+# Update post origin code
+
+# @app.put("/posts/{id}")
+# def update_post(id: int, post: Post):
+
+#     cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s""",
+#                    (post.title, post.content, post.published))
+
+#     updated_post = cursor.fetchone
+
+#     if update_post == None:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+#                             detail=f"post with id {id} does not exist")
+
+#     post_dict = post.dict()  # convert post_dict to a dictionary
+#     post_dict['id'] = id
+#     my_posts[index] = post_dict
+#     return {"data": post_dict}
