@@ -75,29 +75,21 @@ def root():
 
 # Get all posts from my postgres DB table called "posts"
 
-
-@app.get("/sqlalchemy")
-def test_posts(db: Session = Depends(get_db)):
-
-    posts = db.query(models.Post).all()
-    return {"data": posts}
-
-
 @ app.get("/posts")
-def get_posts(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
+def get_posts():
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
     return{"data": posts}
 
 # Create a new post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
 
 
 @ app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post, db: Session = Depends(get_db)):
+def create_post(post: Post):
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
+                   (post.title, post.content, post.published))
 
-    new_post = models.Post(**post.dict())
-    db.add(new_post)
-    db.commit()
-    db.refresh(new_post)
+    new_post = cursor.fetchone()
     return {"data": new_post}
 
 # title string, content string, category, Boolean published or saved as draft
@@ -147,3 +139,55 @@ def update_post(id: int, post: Post):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} does not exist")
     return {"data": updated_post}
+
+
+
+# Original draft
+
+# app = FastAPI()
+
+
+# class Post(BaseModel):
+#     title: str
+#     content: str
+#     published: bool = True
+#     ratings: Optional[int] = None
+
+
+# @app.get("/")
+# def root():
+
+#     return {"message": "Welcome to my API!!!!"}
+
+
+# @app.get("/posts")
+# def get_posts():
+#     return{"data": "This is your post"}
+
+
+# @app.post("/createposts")
+# def create_post(post: Post):
+#     print(post)
+#     print(post.dict())
+#     return {"data": post}
+# # title string, content string, category, Boolean published or saved as draft
+
+
+# Update post origin code
+
+# @app.put("/posts/{id}")
+# def update_post(id: int, post: Post):
+
+#     cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s""",
+#                    (post.title, post.content, post.published))
+
+#     updated_post = cursor.fetchone
+
+#     if update_post == None:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+#                             detail=f"post with id {id} does not exist")
+
+#     post_dict = post.dict()  # convert post_dict to a dictionary
+#     post_dict['id'] = id
+#     my_posts[index] = post_dict
+#     return {"data": post_dict}
