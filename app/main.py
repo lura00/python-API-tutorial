@@ -110,40 +110,41 @@ def create_post(post: Post, db: Session = Depends(get_db)):
 
 
 @app.get("/posts/{id}")  # /{id} path parameter
-def get_post(id: int, response: Response):
-    post = find_post(id)
+def get_post(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} was not found")
-    print(post)
     return {"post_details": post}
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
-    # find the index in the array that has required id
-    # my_posts.pop(index)
-    index = find_index_post(id)
+def delete_post(id: int, db: Session = Depends(get_db)):
 
-    if index == None:
+    delete_post = db.query(models.Post).filter(models.Post.id == id)
+
+    if delete_post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} does not exist")
-    my_posts.pop(index)
+
+    delete_post.delete(synchronize_session=False)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# Update post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
+# Update post in postgres DB using python commands
 
 @app.put("/posts/{id}")
-def update_post(id: int, post: Post):
+def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
 
-    cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING * """,
-                   (post.title, post.content, post.published, str(id)))
+    post_query = db.query(models.Post).filter(models.Post.id == id)
 
-    updated_post = cursor.fetchone()
-    conn.commit()
+    post = post_query.first()
 
-    if updated_post == None:
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id {id} does not exist")
-    return {"data": updated_post}
+
+    post_query.update(updated_post.dict(), synchronize_session=False)
+    db.commit()
+    return {"data": post_query.first()}

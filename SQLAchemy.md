@@ -78,8 +78,7 @@
     return {"data": posts}
 
 - We connect to our fastAPI with @app.
-- define the functions name and add what we needs to be done in (). We call the get_db-function that lays
-    in the database.py-file. scroll up one headline to see it.
+- define the functions name and add the db as in the parameters. (Dependency)
 - This function help us retrieve our table and data within.
 - We create a query and send in what model we want to use. models that we design in models.py and we call
     the model using above models.Post).all(). We import models above as well in main.py.
@@ -95,10 +94,75 @@
     db.refresh(new_post)
     return {"data": new_post}
 
-- Create function name add the data we need.
+- Connect to the API with @app.
+- Create function name add the db in the parameters. (Dependency)
 - create a variable that will represent our model in model.py (post).
     Use **post.dict() To make the model a dictionary and ** will unpack that for us.
     So if we add something to our model we do not need to change anything in the creat_post function.
 - add the new variable to our db
 - we need to commit like we do when writing SQL-code.
 - db.refresh to see our update and the return as usual.
+
+# Get on post with specific ID
+    @app.get("/posts/{id}")  # /{id} path parameter
+    def get_post(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"post with id: {id} was not found")
+    return {"post_details": post}
+
+- Connect to the API with @app.
+- As usual we pass in the db as parameter in the function declaration. (Dependency)
+- Then we do a query, filter in our model.Post for id, using dot"."id equals id. 
+- Keyword "first()" to stop looking when the db has found the id.
+
+# Delete one post
+    @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
+    def delete_post(id: int, db: Session = Depends(get_db)):
+
+    delete_post = db.query(models.Post).filter(models.Post.id == id)
+
+    if delete_post.first() == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"post with id {id} does not exist")
+
+    delete_post.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+- Connect to the API with @app.
+- Add the db in the function declare parameters. (Dependency)
+- Then do the query, connect to our model add the .post and .id to find the correct id
+    you want to delete.
+- If-statement same as in SQL-tutorial except one thing, the statement, delete_post.first()
+    So the first post with id will be checked. 
+- Then delete_post.delete() add the "sync_sess=False" to delete. That is default.
+- Then when changes are to be made in the db table we have to commit, db.commit().
+
+# Update a specific post
+    @app.put("/posts/{id}")
+    def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
+
+    post_query = db.query(models.Post).filter(models.Post.id == id)
+
+    post = post_query.first()
+
+    if post == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"post with id {id} does not exist")
+
+    post_query.update(updated_post.dict(), synchronize_session=False)
+    db.commit()
+    return {"data": post_query.first()}
+
+- Connect to the API using @app.
+- Add the db in the function declare parameters. (Dependency)
+- Then do the query, connect to our model add the .post and .id to find the correct id
+    you want to update.
+- Set a varaible, "post" equals to post_query to save it.
+- If-statement same as in SQL-tutorial except one thing, the statement, post == None
+    So if the post doesn't excist we get  error 404.
+- Then pass in post_qeury.updatge(updated_post.dict(), sync_sess=False) to update the dictionary.
+    Set sync_sess to False, as per default.
+- Then when changes are to be made in the db table we have to commit, db.commit().
