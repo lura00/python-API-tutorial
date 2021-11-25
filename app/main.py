@@ -2,7 +2,7 @@ import enum
 import psycopg2
 import time
 import sys
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from typing import Optional
 from random import randrange
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
-from . import models
+from . import models, schema
 from .database import engine, get_db
 
 # By running this line we create the table within postgres
@@ -18,17 +18,6 @@ from .database import engine, get_db
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# setting a Schema for the posts
-
-
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-    # ratings: Optional[int] = None
-
 
 # connect to database created in postgres
 while True:
@@ -76,29 +65,22 @@ def root():
 # Get all posts from my postgres DB table called "posts"
 
 
-@app.get("/sqlalchemy")
-def test_posts(db: Session = Depends(get_db)):
-
-    posts = db.query(models.Post).all()
-    return {"data": posts}
-
-
-@ app.get("/posts")
+@ app.get("/posts", response_model=List[schema.Post])
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
-    return{"data": posts}
+    return posts
 
 # Create a new post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
 
 
-@ app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post, db: Session = Depends(get_db)):
+@ app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schema.Post)
+def create_post(post: schema.PostCreate, db: Session = Depends(get_db)):
 
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
-    return {"data": new_post}
+    return new_post
 
 # title string, content string, category, Boolean published or saved as draft
 
@@ -110,12 +92,12 @@ def create_post(post: Post, db: Session = Depends(get_db)):
 
 
 @app.get("/posts/{id}")  # /{id} path parameter
-def get_post(id: int, db: Session = Depends(get_db)):
+def get_post(id: int, db: Session = Depends(get_db), response_model=schema.Post):
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} was not found")
-    return {"post_details": post}
+    return post
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -135,7 +117,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 # Update post in postgres DB using python commands
 
 @app.put("/posts/{id}")
-def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
+def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(get_db), response_model=schema.Post):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
 
@@ -147,4 +129,14 @@ def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
 
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
-    return {"data": post_query.first()}
+    return post_query.first()
+
+
+@ app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
+def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+    # Convert user to a dict and unpack ut (**)
+    new_user = models.User(**user.dict())
+    db.add(new_user)  # Adding to our db
+    db.commit()
+    db.refresh(new_user)
+    return new_user

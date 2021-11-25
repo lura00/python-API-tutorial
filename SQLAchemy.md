@@ -166,3 +166,17 @@
 - Then pass in post_qeury.updatge(updated_post.dict(), sync_sess=False) to update the dictionary.
     Set sync_sess to False, as per default.
 - Then when changes are to be made in the db table we have to commit, db.commit().
+
+# Create ORM-models in models.py
+- Create models of how table should look like, what data we pass in must fit the mdoel.
+- Here is a model for adding and creating users:
+
+    class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),
+                        nullable=False, server_default=text('now()'))
+
+- Add what type then if nullable = False means that it can't be left blank. If keyword "unique" is added the same, in this example, email can't be entered more then once.
