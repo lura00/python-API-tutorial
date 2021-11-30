@@ -1,4 +1,5 @@
 import enum
+from passlib.utils.decor import deprecated_method
 import psycopg2
 import time
 import sys
@@ -10,7 +11,8 @@ from typing import Optional
 from random import randrange
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.orm import Session
-from . import models, schema
+from sqlalchemy.sql.functions import user
+from . import models, schema, utils
 from .database import engine, get_db
 
 # By running this line we create the table within postgres
@@ -134,9 +136,24 @@ def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(
 
 @ app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
 def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+
+    # hash the password - user.password
+    hash_password = utils.hash(user.password)
+    user.password = hash_password
     # Convert user to a dict and unpack ut (**)
     new_user = models.User(**user.dict())
     db.add(new_user)  # Adding to our db
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@app.get('/users/{id}', response_model=schema.UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id {id} not found")
+
+    return user
