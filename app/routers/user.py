@@ -10,9 +10,8 @@ from sqlalchemy.orm import Session
 from .. import models, schema, utils
 from ..database import get_db
 
-
+# This does so inte every path operation we dont need to put /users. So if we have /users/id we romove /users since the prefix have already done that for us.
 router = APIRouter(
-    # This does so inte every path operation we dont need to put /users. So if we have /users/id we romove /users since the prefix have already done that for us.
     prefix='/users',
     tags=['Users']
 )
@@ -22,8 +21,8 @@ router = APIRouter(
 def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
 
     # hash the password - user.password
-    hash_password = utils.hash(user.password)
-    user.password = hash_password
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
     # Convert user to a dict and unpack ut (**)
     new_user = models.User(**user.dict())
     db.add(new_user)  # Adding to our db
@@ -38,6 +37,6 @@ def get_user(id: int, db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"User with id {id} not found")
+                            detail=f"User with id: {id} not found")
 
     return user

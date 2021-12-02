@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from sqlalchemy.sql.sqltypes import Integer
+from typing import Optional
 
 # setting a Schema for the posts
 
@@ -25,7 +26,7 @@ class PostCreate(PostBase):
 # Since class Post inherit class PostBase it already have title, content and published. In this way we do not need do write that again.
 
 class Post(PostBase):
-    id: int
+    id: str
     created_at: datetime
 
     class Config:   # Tells pydantic that "we know it is not a dict, but convert it anyways"
@@ -37,7 +38,7 @@ class Post(PostBase):
 class UserCreate(BaseModel):
     # import from pydantic. Makes sure it is a valid email and not random text.
     email: EmailStr
-    password: int
+    password: str
 
 
 class UserOut(BaseModel):

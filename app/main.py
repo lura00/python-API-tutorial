@@ -1,13 +1,15 @@
-import psycopg2
-import time
-import sys
-from fastapi.params import Body
-from fastapi import FastAPI, Response, status, HTTPException, Depends
-from psycopg2.extras import RealDictCursor
-from sqlalchemy.sql.functions import user
-from sqlalchemy.orm import Session
+
 from typing import Optional, List
+from fastapi import FastAPI, Response, status, HTTPException, Depends
+from fastapi.params import Body
 from pydantic import BaseModel
+
+from random import randrange
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import mode
 from . import models, schema, utils
 from .database import engine, get_db
 from .routers import post, user, auth
@@ -29,7 +31,6 @@ while True:
     except Exception as error:
         print("Connecting to database failed")
         print("Error: ", error)
-        # sys.exit(10)
         # import time, this will make the while loop wait 2 secs before starting over.
         time.sleep(2)
 

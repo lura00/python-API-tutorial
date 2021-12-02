@@ -11,9 +11,8 @@ from .. import models, schema
 from ..database import get_db
 from typing import List
 
-
+# This does so inte every path operation we dont need to put /posts. So if we have /posts/id we romove /posts since the prefix have already done that for us.
 router = APIRouter(
-    # This does so inte every path operation we dont need to put /posts. So if we have /posts/id we romove /posts since the prefix have already done that for us.
     prefix='/posts',
     tags=['Posts']
 )
@@ -40,14 +39,6 @@ def create_post(post: schema.PostCreate, db: Session = Depends(get_db)):
     db.refresh(new_post)
     return new_post
 
-# title string, content string, category, Boolean published or saved as draft
-
-
-# @app.get("/posts/latest")
-# def get_latest_post():
-#     post = my_posts[len(my_posts)-1]
-#     return {"detail": post}
-
 
 @router.get('/{id}', response_model=schema.Post)  # /{id} path parameter
 def get_post(id: int, db: Session = Depends(get_db)):
@@ -65,7 +56,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
     if delete_post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with id {id} does not exist")
+                            detail=f"post with id: {id} does not exist")
 
     delete_post.delete(synchronize_session=False)
     db.commit()
@@ -83,8 +74,17 @@ def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(
 
     if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with id {id} does not exist")
+                            detail=f"post with id: {id} does not exist")
 
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
     return post_query.first()
+
+
+# title string, content string, category, Boolean published or saved as draft
+
+
+# @app.get("/posts/latest")
+# def get_latest_post():
+#     post = my_posts[len(my_posts)-1]
+#     return {"detail": post}
