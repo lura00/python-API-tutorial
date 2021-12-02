@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 from .. import database, schema, models, utils
+
 router = APIRouter(tags="Authentication")
 
 # Path operation for login user

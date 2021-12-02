@@ -1,13 +1,16 @@
 import psycopg2
 import time
 import sys
-from fastapi import FastAPI
+from fastapi.params import Body
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from psycopg2.extras import RealDictCursor
 from sqlalchemy.sql.functions import user
-from . import models
-from .database import engine
+from sqlalchemy.orm import Session
+from typing import Optional, List
+from pydantic import BaseModel
+from . import models, schema, utils
+from .database import engine, get_db
 from .routers import post, user, auth
-
 # By running this line we create the table within postgres
 
 models.Base.metadata.create_all(bind=engine)
@@ -49,9 +52,11 @@ def find_index_post(id):
 
 
 # Include our new folder router and the files in it. Then goes to the files and see if it can match router.
+
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+
 # Initializing fastAPI
 
 

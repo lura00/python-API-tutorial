@@ -1,6 +1,5 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-
 from sqlalchemy.sql.sqltypes import Integer
 
 # setting a Schema for the posts
@@ -38,7 +37,7 @@ class Post(PostBase):
 class UserCreate(BaseModel):
     # import from pydantic. Makes sure it is a valid email and not random text.
     email: EmailStr
-    password: str
+    password: int
 
 
 class UserOut(BaseModel):
