@@ -273,3 +273,5 @@ Example of a created post message (status_code):
 - We can also use "redoc". Sometimes docs or redoc can be used instead of postman to try our methods out.
     127.0.0.1:8000/redoc
 
+
+

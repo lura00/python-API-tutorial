@@ -180,3 +180,45 @@
                         nullable=False, server_default=text('now()'))
 
 - Add what type then if nullable = False means that it can't be left blank. If keyword "unique" is added the same, in this example, email can't be entered more then once.
+
+# Create new user and get-user (show profile)
+
+    @ app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
+    def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+
+    # hash the password - user.password
+    hash_password = utils.hash(user.password)
+    user.password = hash_password
+    # Convert user to a dict and unpack ut (**)
+    new_user = models.User(**user.dict())
+    db.add(new_user)  # Adding to our db
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+- In our schema.py I have added a new schema, UserOut, wich I connect the @app to via response_model.
+- We use "hash" to hash the password choosen by the user. Then no one will get or see the password.
+- to use hash, install "pip install passlib[bcrypt], then import "from passlib.context import CryptContext"
+    This is done in a seperate file called "Utils.py" where we will put all utilities for the program.
+
+    @app.get('/users/{id}', response_model=schema.UserOut)
+    def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id {id} not found")
+
+    return user
+    
+- To get a profile I pass in id since every user has a specific id. 
+- Here as well we connect to UserOut-schema. This means what info the user will get back.
+
+# Path operation for login user (in new router, auth.py)
+
+    @router.post('/login')
+    def login(user_credentials: schema.UserLogin, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.email == user_credentials.email).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")

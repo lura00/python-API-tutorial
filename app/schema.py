@@ -29,7 +29,7 @@ class Post(PostBase):
     id: int
     created_at: datetime
 
-    class Config:   # Tells pydantic that "ww know it is not a dict, but convert it anyways"
+    class Config:   # Tells pydantic that "we know it is not a dict, but convert it anyways"
         orm_mode = True
 
 
@@ -48,3 +48,8 @@ class UserOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
