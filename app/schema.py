@@ -3,6 +3,8 @@ from datetime import datetime
 from sqlalchemy.sql.sqltypes import Integer
 from typing import Optional
 
+from app.database import Base
+
 # setting a Schema for the posts
 
 # Create different schemas for different kind of requests, in that way we can decide what the user will be able to do when in the different requests.
@@ -53,3 +55,12 @@ class UserOut(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    id: Optional[str]

@@ -28,3 +28,10 @@
 
 # Get one specific post
 - create a new GET in your workspace. copy the URL from your first GET-method and add the ID.
+
+# How to send requests when you need to authorize yourself
+- Go to login request type login data and retrieve a token.
+- go to the other requests click on either "HEADER" add in "KEY" "Athorization" and in "VALUE"
+    type "Bearer" capital B and paste the generated token.
+- Or simply press on AUTHORIZATION --> type, choose Bearer token and paste the token.
+- Now sending requests should work.
