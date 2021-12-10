@@ -117,3 +117,19 @@ example:
 - UPDATE products SET name = 'flower tortilla', price = 40 WHERE id = 21; keywowrd UPDATE and SET
 - Updating multiple rows:
     UPDATE products SET is_sale = true WHERE id > 15 RETURNING *; 
+
+# Setting up a foreign key
+- In postgres/pgAdmin right click on your table and choose properties
+- I needed to add a user_id column, set datatype same as id (int)
+- set to not null if thats required.
+- Go ti constraints --> Foreign key
+- Name it, ususally from what table it should connect with, in my case
+    posts_users_fkey
+- Choose the columns it should interact with. local, reference.
+- in Action example choose "on delete" --> Cascade, this will if I delete a user with for ex. id 1, postgres will automatically delete   all posts created by user id 1.
+- We do this foreign key to get a connection with users and posts, so we
+    can see who posted what.
+    So when a post is created the new column, user_id, will not accept the post unless there is a valid id of a user. If a id that does not exist is entered, it will not
+    accept the post.
+- The SQL code to check posts for this new id will be: SELECT * FROM posts WHERE user_id = 15;
+- Delete user with id: DELETE FROM users where id = 14;

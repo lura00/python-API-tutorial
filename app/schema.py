@@ -27,9 +27,13 @@ class PostCreate(PostBase):
 
 # Since class Post inherit class PostBase it already have title, content and published. In this way we do not need do write that again.
 
+# In class post we simply add owner_id and datatype and save. This will now return owner id because
+# the schema of what we want to return to user says so.
+
 class Post(PostBase):
     id: str
     created_at: datetime
+    owner_id: int
 
     class Config:   # Tells pydantic that "we know it is not a dict, but convert it anyways"
         orm_mode = True

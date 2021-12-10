@@ -26,18 +26,25 @@ router = APIRouter(
 
 
 @router.get('/', response_model=List[schema.Post])
-def get_posts(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    # to add id auth add ".filter(models.Post.owner_id == current_user.id).all()"
     posts = db.query(models.Post).all()
     return posts
 
 # Create a new post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.
 
+# current_user comes from oauth2 function that return user using ID.
+
+# To get the owner_id when we fetch a post, we need to add it to the schema we call for in the
+# router.post, so to schema.py to see the changes.
+# To not get an owner_id error when created a post we add owner_id=current_user.id
+# to the new_post variable that contains the users dictionary
+
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schema.Post)
-def create_post(post: schema.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def create_post(post: schema.PostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
-    print(user_id)
-    new_post = models.Post(**post.dict())
+    new_post = models.Post(owner_id=current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -45,7 +52,7 @@ def create_post(post: schema.PostCreate, db: Session = Depends(get_db), user_id:
 
 
 @router.get('/{id}', response_model=schema.Post)  # /{id} path parameter
-def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -54,13 +61,19 @@ def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oaut
 
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
-    delete_post = db.query(models.Post).filter(models.Post.id == id)
+    delete_post_query = db.query(models.Post).filter(models.Post.id == id)
 
-    if delete_post.first() == None:
+    delete_post = delete_post_query.first()
+
+    if delete_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} does not exist")
+
+    if delete_post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to perform requested action")
 
     delete_post.delete(synchronize_session=False)
     db.commit()
@@ -70,7 +83,7 @@ def delete_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(o
 # Update post in postgres DB using python commands
 
 @router.put('/{id}', response_model=schema.Post)
-def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
 
@@ -79,6 +92,10 @@ def update_post(id: int, updated_post: schema.PostCreate, db: Session = Depends(
     if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} does not exist")
+
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to perform requested action")
 
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()

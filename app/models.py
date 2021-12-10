@@ -1,5 +1,6 @@
 from fastapi.exceptions import FastAPIError
 from sqlalchemy.sql.expression import null, text, true
+from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import TEXT, TIMESTAMP
 from .database import Base
 from sqlalchemy import Column, Integer, String, Boolean
@@ -16,6 +17,8 @@ class Post(Base):
     published = Column(Boolean, server_default='TRUE', nullable=False)
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
+    owner_id = Column(Integer, ForeignKey(
+        "users.id", ondelete="CASCADE"), nullable=False)
 
 
 class User(Base):

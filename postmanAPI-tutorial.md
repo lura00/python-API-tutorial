@@ -35,3 +35,14 @@
     type "Bearer" capital B and paste the generated token.
 - Or simply press on AUTHORIZATION --> type, choose Bearer token and paste the token.
 - Now sending requests should work.
+
+# Environments 
+- Click on the border on the left a button callaed "environments".
+- Name it, and then we can set for example environment variables, for example the test URL.
+- This way I don't have to hard code the URL on every html-request.
+- On the collections-site, choose environment on the top right corner of the site and chooose the one we  ceated.
+- To use the new URL env-variable paste it like this where the URL goes on the requests: {{URL}}/posts.
+- You can do one for JWT token as well so we don't have to login and paste the new token each time during testing.
+- go to login-request, press the "test"-button on the right side there is links to different snippets.
+- For this choos "set an env variable" this will appear:
+    pm.environment.set("JWT", pm.response.json().access_token); the text inside is edited by me.

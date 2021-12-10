@@ -238,3 +238,13 @@
 - Set user_credentials to OAuth2PasswordRequestForm = Depends()
 - in the db-queary set user_credentials.email to user_credentials.username.
 - create the access token and return it.
+
+# Set up a foreign key using sql alchemy
+- in the models.py ad a new row to posts class.
+- This will look like this:
+    owner_id = Column(Integer, ForeignKey(
+        "users.id", ondelete="CASCADE"), nullable=False)
+- What we pass in is, Column, Integer that needs to match datatype of id in class users.
+- typ ForeignKey, pass in users.id and on delete, CASCADE. set nullable to false.
+- Delete the posts table in pgAdmin and save your models.py and the db will update and create a
+    new posts table with this column.
