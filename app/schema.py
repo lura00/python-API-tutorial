@@ -23,6 +23,13 @@ class PostCreate(PostBase):
     pass
 
 
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
 # Post handles data sending data from us to user, specify what data should come back to the user.
 
 # Since class Post inherit class PostBase it already have title, content and published. In this way we do not need do write that again.
@@ -30,10 +37,15 @@ class PostCreate(PostBase):
 # In class post we simply add owner_id and datatype and save. This will now return owner id because
 # the schema of what we want to return to user says so.
 
+# To get user information when retrieving a post, I added "owner" and called the schema "userOut".
+# make sure the called for schema is above class Post for it to work.
+
+
 class Post(PostBase):
     id: str
     created_at: datetime
     owner_id: int
+    owner: UserOut
 
     class Config:   # Tells pydantic that "we know it is not a dict, but convert it anyways"
         orm_mode = True
@@ -45,15 +57,6 @@ class UserCreate(BaseModel):
     # import from pydantic. Makes sure it is a valid email and not random text.
     email: EmailStr
     password: str
-
-
-class UserOut(BaseModel):
-    id: int
-    email: EmailStr
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class UserLogin(BaseModel):

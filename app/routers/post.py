@@ -9,7 +9,7 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from .. import models, schema, oauth2
 from ..database import get_db
-from typing import List
+from typing import List, Optional
 
 # This does so inte every path operation we dont need to put /posts. So if we have /posts/id we romove /posts since the prefix have already done that for us.
 router = APIRouter(
@@ -24,11 +24,18 @@ router = APIRouter(
 # The last parameter in the function is the authorization to make sure user is logged in
 # before he/she can do anything with any post.
 
+# Add "limit: datatype" to def-parameter and add to query to get a limit to how many posts to get when "get all"
+# In the qeury parameters, to skip a post, add skip to def-param and set a default.
+# add "offset(skip)" to query-param. And to be able to search in the query.
+# Add search to def param and set default to "Optional[str]" Also import Optional from Typing.
+# Add to query, "filter(models.Post.title.contains(search)".
+
 
 @router.get('/', response_model=List[schema.Post])
-def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     # to add id auth add ".filter(models.Post.owner_id == current_user.id).all()"
-    posts = db.query(models.Post).all()
+    posts = db.query(models.Post).filter(
+        models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
 # Create a new post in postgres DB using SQL commands in python, %s = variable VALUE in this case post.tite etc.

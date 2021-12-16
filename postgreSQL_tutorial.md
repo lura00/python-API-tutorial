@@ -133,3 +133,11 @@ example:
     accept the post.
 - The SQL code to check posts for this new id will be: SELECT * FROM posts WHERE user_id = 15;
 - Delete user with id: DELETE FROM users where id = 14;
+
+# Settings up a votes-table in postgres(pgAdmin)
+- Create new table, called votes.
+- Add in columns user-id and post-id. Since one user should only be able to like one post one time.
+- Add a foreign key, see above how to do that.
+    It should contain one key for votes_posts and one votes_users
+    local column should be for posts, posts_id etc. reference public_posts and referencing id.
+    And same for users.
