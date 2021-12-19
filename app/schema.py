@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from pydantic.types import conint
 from sqlalchemy.sql.sqltypes import Integer
 from typing import Optional
 
@@ -70,4 +71,9 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
+
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1)  # less than 1. Neg. accetps negative numbers

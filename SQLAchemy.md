@@ -179,7 +179,17 @@
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
 
+    class Vote(Base):
+    __tablename__ = "votes"
+    user_id = Column(Integer, ForeignKey(
+        "users.id", ondelete="CASCADE"), primary_key=True)
+    post_id = Column(Integer, ForeignKey(
+        "users.id", ondelete="CASCADE"), primary_key=True)
+
 - Add what type then if nullable = False means that it can't be left blank. If keyword "unique" is added the same, in this example, email can't be entered more then once.
+
+- Foreign key will set up a relationship between diff tables. ondelete=CASCADE means when 
+    Some user gets deleted, all data connected to that id will be removed.
 
 # Create new user and get-user (show profile)
 

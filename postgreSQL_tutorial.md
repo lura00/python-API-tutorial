@@ -141,3 +141,9 @@ example:
     It should contain one key for votes_posts and one votes_users
     local column should be for posts, posts_id etc. reference public_posts and referencing id.
     And same for users.
+
+# Join two tables and modify the outcome
+- use the this "LEFT JOIN or RIGHT JOIN (or google other joins)" keyword and the specify. 
+    SELECT posts.title, posts.content, users.email FROM posts LEFT JOIN users ON posts.owner_id = users.id;
+- By this command I can show information from two different tables and what columns I want to see.
+- Two count data in tables, use keyword, COUNT().
