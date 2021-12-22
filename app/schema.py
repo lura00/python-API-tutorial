@@ -52,7 +52,15 @@ class Post(PostBase):
         orm_mode = True
 
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
+
 # Pydantic's orm_mode will tell Pydantic model to read the data even if it is not a dict, but an ORM model(or any other arbitrary object with attributes).
+
 
 class UserCreate(BaseModel):
     # import from pydantic. Makes sure it is a valid email and not random text.

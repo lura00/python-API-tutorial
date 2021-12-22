@@ -258,3 +258,16 @@
 - typ ForeignKey, pass in users.id and on delete, CASCADE. set nullable to false.
 - Delete the posts table in pgAdmin and save your models.py and the db will update and create a
     new posts table with this column.
+
+# Adding votes column using sqlAlchemy
+- By adding this row to the query:
+    db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id)
+- And create a new schema in the schema.py-file.
+    class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
+- Add the new schema too the response model.

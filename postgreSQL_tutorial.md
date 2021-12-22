@@ -147,3 +147,6 @@ example:
     SELECT posts.title, posts.content, users.email FROM posts LEFT JOIN users ON posts.owner_id = users.id;
 - By this command I can show information from two different tables and what columns I want to see.
 - Two count data in tables, use keyword, COUNT().
+
+# Add a vote-count for each post
+- select posts.*, COUNT(votes.post_id) from posts LEFT JOIN votes ON posts.id = votes.post_id GROUP BY posts.id;
