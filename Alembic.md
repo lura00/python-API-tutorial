@@ -44,3 +44,10 @@
 - alembic revision -m "message" = will create a new version to add DB
 - alembic current = Will show on what version we are at.
 - alembic history = Will show history of whats been done.
+
+# How to tell alembic to upgrade the postgres-db according to the SQLalchemy models
+- first app.models import Base must be imported
+- the commando: alembic revision --autogenerate -m "auto-vote" 
+- By typing vote it looks in our models where vote can be found. And creates a revision
+    Then shows the upgrades it will do.
+- Then do "alembic upgrade head".
