@@ -1,4 +1,3 @@
-from fastapi.param_functions import Depends
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
