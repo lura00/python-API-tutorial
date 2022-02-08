@@ -1,6 +1,7 @@
 anyio==3.3.4
 asgiref==3.4.1
 autopep8==1.6.0
+alembic
 bcrypt==3.2.0
 certifi==2021.10.8
 cffi==1.15.0
