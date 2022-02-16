@@ -15,7 +15,7 @@
     from app.models import Base
     Add the Base to: target_metadata = Base.metadata
 - Next go to alembic.ini-file
-    sqlAlchemy_URL set to bland and the go to anv.py to override that line in the ini-file.
+    sqlAlchemy_URL set to blank and the go to env.py to override that line in the ini-file.
 - In alembic folder env.py-file
     Under the config -line add a new config: config.set_main_option and add the sqlAlchemy_URL. 
     Import the config.py file and the settings-function.
