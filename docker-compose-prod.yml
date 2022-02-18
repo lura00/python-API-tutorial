@@ -1,0 +1,40 @@
+# Specify what version to use
+version: "3"
+# Add services "containers and specify what they should do"
+services:
+  api:
+    image: lura00/fastapi
+    depends_on:
+      - postgres
+    ports:
+      - 80:8000 # <port on localhost>:<port on container> same in dockerfile port 80 so we can use webbrowser
+      # command: uvicorn app.main:app --host 0.0.0.0 --port 8000   # Already in Dockerfile-file
+      #   - ./.env # add the environment variables to DB either way works. This is safer.
+    environment:
+      - DATABASE_HOSTNAME=${DATABASE_HOSTNAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+  # Adding a postgres container
+  postgres:
+    image: postgres # Default image
+
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+
+    volumes:
+      - postgres-db:/var/lib/postgresql/data # where all data will be stored in the container
+  # add a global volume cmd as well
+volumes:
+  postgres-db:
+    # cmd in terminal: "docker-compose up -d" (-d tells to run in the background)
+    # docker-compose down to turn off
+    # add --build to force a re-build
+
+
+    # To start produktion env: "docker-compose -f docker-compose-prod.yml up -d"
