@@ -21,7 +21,7 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
   # Adding a postgres container
   postgres:
-    image: postgres # Default image
+    image: postgres # Default image from docker-hub
 
     environment:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}

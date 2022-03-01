@@ -1,0 +1,42 @@
+# Specify what version to use
+version: "3"
+# Add services "containers and specify what they should do"
+services:
+  api:
+    build: . # dot == current dir
+    depends_on:
+      - postgres
+    ports:
+      - 8000:8000 # <port on localhost>:<port on container> same in dockerfile
+    volumes:
+      - ./:/usr/srx/app:ro #sync changes done localy to the container. ro == read only
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      # env_file:
+      #   - ./.env # add the environment variables to DB either way works. This is safer.
+    environment:
+      - DATABASE_HOSTNAME=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_PASSWORD=solstad
+      - DATABASE_NAME=fastapi
+      - DATABASE_USERNAME=postgres
+      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+  # Adding a postgres container
+  postgres:
+    image: postgres # Default image
+
+    environment:
+      - POSTGRES_PASSWORD=solstad
+      - POSTGRES_DB=fastapi
+
+    volumes:
+      - postgres-db:/var/lib/postgresql/data # where all data will be stored in the container
+  # add a global volume cmd as well
+volumes:
+  postgres-db:
+    # cmd in terminal: "docker-compose up -d" (-d tells to run in the background)
+    # docker-compose down to turn off
+    # add --build to force a re-build
+
+    # To start development env: "docker-compose -f docker-compose-dev.yml up -d"

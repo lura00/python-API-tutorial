@@ -1,9 +1,10 @@
 import pytest
 from app.calculations import add, subtract, multiply, divide
 
-# test run with pytest
+# test run with pytest "pytest -v -s path", "add -x to stop when fail arrives"
 
 
+@pytest
 @pytest.mark.parametrize("num1, num2, expected", [
     (3, 2, 5),
     (7, 1, 8),
