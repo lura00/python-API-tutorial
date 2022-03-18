@@ -5,8 +5,8 @@
 # main now imports this files and set up a app.include_routers to include all routers within post and user.
 
 
-from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
-from sqlalchemy.orm import Session, query
+from fastapi import Response, status, HTTPException, Depends, APIRouter
+from sqlalchemy.orm import Session
 from sqlalchemy import func
 from .. import models, schema, oauth2
 from ..database import get_db
