@@ -3,6 +3,7 @@ from .routers import post, user, auth, vote
 # Allows people from other domains talk to my API
 from fastapi.middleware.cors import CORSMiddleware
 
+# Youtube => 16:27:58
 # models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
