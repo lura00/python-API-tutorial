@@ -5,6 +5,7 @@
     Now I dont need to import any of the database.py stuff to the tests files since
     The fixtures is in the conftest file"""
 
+from multiprocessing.connection import Client
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -14,6 +15,8 @@ from app.main import app
 from app import schema
 from app.config import settings
 from app.database import get_db, Base
+from app.oauth2 import create_access_token
+from app import models
 
 
 # SQLALCHEMY_DATABASE_URL = "postgresql://postgres:solstad@localhost:5432/fastapi_test"
@@ -51,6 +54,17 @@ def client(session):
     yield TestClient(app)
 
 
+@pytest.fixture
+def test_user2(client):
+    user_data = {"email": "lura123@gmail.com", "password": "testpass"}
+    res = client.post("/users/", json=user_data)
+
+    assert res.status_code == 201
+    new_user = res.json()
+    new_user['password'] = user_data['password']
+    return new_user
+
+
 # Adding this test_user to conftest file since test user can be useful in other tests.
 @pytest.fixture
 def test_user(client):
@@ -61,3 +75,63 @@ def test_user(client):
     new_user = res.json()
     new_user['password'] = user_data['password']
     return new_user
+
+
+@pytest.fixture
+def token(test_user):
+    return create_access_token({"user_id": test_user['id']})
+
+
+@pytest.fixture
+def authorized_client(client, token):
+    client.headers = {
+        **client.headers,
+        "Authorization": f"Bearer {token}"
+    }
+
+    return client
+
+
+@pytest.fixture
+def test_posts(test_user, test_user2, session):
+    posts_data = [{
+        "title": "first title",
+        "content": "first content",
+        "owner_id": test_user['id']
+    }, {
+        "title": "2nd title",
+        "content": "2nd content",
+        "owner_id": test_user['id']
+    },
+        {
+        "title": "3rd title",
+        "content": "3rd content",
+        "owner_id": test_user['id']
+    },
+        {
+        "title": "3rd title",
+        "content": "3rd content",
+        "owner_id": test_user2['id']
+    }]
+
+    """Below function takes a list with dicts and make it look like models.Post
+        Then with map-function iterate through a list and converts all the posts to a models.post
+        map-func calls the function above that gets the posts.
+        the turning post_map to a list is easy. Store the list to a variable and add many posts at once"""
+
+    def create_post_model(post):
+        return models.Post(**post)
+
+    post_map = map(create_post_model, posts_data)
+    posts = list(post_map)
+
+    session.add_all(posts)
+
+    # session.add_all([models.Post(title="first title", content="first content", owner_id=test_user['id']),
+    #                 models.Post(title="2nd title",
+    #                             content="2nd content", owner_id=test_user['id']),
+    #                 models.Post(title="3rd title", content="3rd content", owner_id=test_user['id'])])
+    session.commit()
+
+    posts = session.query(models.Post).all()
+    return posts
