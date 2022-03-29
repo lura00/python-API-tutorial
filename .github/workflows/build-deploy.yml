@@ -21,7 +21,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: ${{secrets.JOKER}}
-          POSTGRES_DB: DATABASE_NAME: ${{secrets.AQUAMAN}}
+          POSTGRES_DB: ${{secrets.AQUAMAN}}
         ports:
           - 5432:5432
         options: >-
