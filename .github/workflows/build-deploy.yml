@@ -7,14 +7,14 @@ jobs:
     environment:
       name: testing
     env:
-      DATABASE_HOSTNAME: ${{BATMAN}}
-      DATABASE_PORT: ${{SUPERMAN}}
-      DATABASE_PASSWORD: ${{JOKER}}
-      DATABASE_NAME: ${{AQUAMAN}}
-      DATABASE_USERNAME: ${{THE_FLASH}}
-      SECRET_KEY: ${{WONDER_WOMAN}}
-      ALGORITHM: ${{RIDDLER}}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ALFRED}}
+      DATABASE_HOSTNAME: ${{secrets.BATMAN}}
+      DATABASE_PORT: ${{secrets.SUPERMAN}}
+      DATABASE_PASSWORD: ${{secrets.JOKER}}
+      DATABASE_NAME: ${{secrets.AQUAMAN}}
+      DATABASE_USERNAME: ${{secrets.THE_FLASH}}
+      SECRET_KEY: ${{secrets.WONDER_WOMAN}}
+      ALGORITHM: ${{secrets.RIDDLER}}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ALFRED}}
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo
