@@ -45,4 +45,4 @@ jobs:
       - name: Test with Pytest
         run: |
           python3.9 -m pip install pytest
-          pytest ./tests
+          pytest ./tests -v
