@@ -45,4 +45,4 @@ jobs:
       - name: Test with Pytest
         run: |
           pip install -U Pytest
-          pytest -h
+          pytest --disable-warnings
