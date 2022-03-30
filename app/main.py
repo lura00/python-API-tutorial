@@ -32,4 +32,4 @@ app.include_router(vote.router)
 @app.get("/")
 def root():
 
-    return {"message": "Hello Nyllet ==> BRAINFART"}
+    return {"message": "Successfully deploy to heroku from cicd-pipline!!"}
