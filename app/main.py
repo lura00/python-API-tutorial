@@ -34,5 +34,5 @@ app.include_router(vote.router)
 @app.get("/")
 def root(request: Request):
     ip = request.client.host
-    host = socket.gethostbyaddr(ip)
-    return {"message": f"Hello {host[0]}, pleased that you find yourself in here. type /docs in the url and test out my twitter-like program in fastapi/Swagger"}
+    host = socket.gethostname()
+    return {"message": f"Hello {host} from {ip}, pleased that you find yourself in here. type /docs in the url and test out my twitter-like program in fastapi/Swagger"}
