@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from urllib import request
+from fastapi import FastAPI, Request
 from .routers import post, user, auth, vote
 # Allows people from other domains talk to my API
 from fastapi.middleware.cors import CORSMiddleware
-import os
+import socket
+
 
 # Youtube => 17:21:57
 # models.Base.metadata.create_all(bind=engine)
@@ -29,8 +31,8 @@ app.include_router(vote.router)
 
 # Initializing fastAPI
 
-
 @app.get("/")
-def root():
-
-    return {"message": f"Hello {os.getlogin()}, pleased that you find yourself in here. type /docs in the url and test out my twitter-like program in fastapi/Swagger"}
+def root(request: Request):
+    ip = request.client.host
+    host = socket.gethostbyaddr(ip)
+    return {"message": f"Hello {host}, pleased that you find yourself in here. type /docs in the url and test out my twitter-like program in fastapi/Swagger"}
