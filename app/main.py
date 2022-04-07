@@ -32,4 +32,4 @@ app.include_router(vote.router)
 @app.get("/")
 def root():
 
-    return {"message": "Hello we are Breaking Bad, we are the ones who knocks..."}
+    return {"message": "Hello Accenture, pleasent that you find yourself in here. check /docs and test out my twitter-like program in fastapi/Swagger"}
